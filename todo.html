@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-Do List App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+    <div class="bg-white shadow-lg rounded-lg w-full max-w-md p-6">
+      <h1 class="text-2xl font-bold text-center text-indigo-600 mb-4">
+        To-Do List
+      </h1>
+
+      <!-- Input -->
+      <div class="flex gap-2 mb-4">
+        <input
+          type="text"
+          id="taskInput"
+          placeholder="Add a new task"
+          class="flex-grow p-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <button
+          id="addTaskBtn"
+          class="px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"
+        >
+          Add
+        </button>
+      </div>
+
+      <!-- Tasks -->
+      <ul id="taskList" class="space-y-2"></ul>
+
+      <!-- Clear All -->
+      <button
+        id="clearAllBtn"
+        class="mt-4 w-full py-2 bg-red-500 text-white rounded hover:bg-red-600"
+      >
+        Clear All
+      </button>
+    </div>
+
+    <script>
+      const taskInput = document.getElementById("taskInput");
+      const addTaskBtn = document.getElementById("addTaskBtn");
+      const taskList = document.getElementById("taskList");
+      const clearAllBtn = document.getElementById("clearAllBtn");
+
+      // Load tasks from localStorage
+      let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      renderTasks();
+
+      // Add task
+      addTaskBtn.addEventListener("click", () => {
+        const taskText = taskInput.value.trim();
+        if (taskText) {
+          tasks.push({ text: taskText, completed: false });
+          localStorage.setItem("tasks", JSON.stringify(tasks));
+          taskInput.value = "";
+          renderTasks();
+        }
+      });
+
+      // Toggle & Delete task
+      function renderTasks() {
+        taskList.innerHTML = "";
+        tasks.forEach((task, index) => {
+          const li = document.createElement("li");
+          li.className =
+            "flex justify-between items-center p-2 bg-gray-50 rounded shadow-sm";
+          li.innerHTML = `
+          <span class="flex-grow cursor-pointer ${
+            task.completed ? "line-through text-gray-400" : ""
+          }">${task.text}</span>
+          <button class="text-sm text-green-500 mr-2 toggleBtn">${
+            task.completed ? "Undo" : "Done"
+          }</button>
+          <button class="text-sm text-red-500 deleteBtn">Delete</button>
+        `;
+
+          // Toggle button
+          li.querySelector(".toggleBtn").addEventListener("click", () => {
+            tasks[index].completed = !tasks[index].completed;
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+            renderTasks();
+          });
+
+          // Delete button
+          li.querySelector(".deleteBtn").addEventListener("click", () => {
+            tasks.splice(index, 1);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+            renderTasks();
+          });
+
+          taskList.appendChild(li);
+        });
+      }
+
+      // Clear all tasks
+      clearAllBtn.addEventListener("click", () => {
+        tasks = [];
+        localStorage.removeItem("tasks");
+        renderTasks();
+      });
+    </script>
+  </body>
+</html>
